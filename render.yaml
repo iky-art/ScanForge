@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: scanforge-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
+        sync: false
+      - key: SCAN_REQUEST_TIMEOUT_MS
+        value: 10000
+      - key: SCAN_MAX_REDIRECTS
+        value: 5
+      - key: SCAN_MAX_RESPONSE_BYTES
+        value: 5000000
