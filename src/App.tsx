@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { LanguageProvider } from "@/lib/i18n";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Splash, useSplashGate } from "@/components/Splash";
 import { AppShell } from "@/layouts/AppShell";
@@ -46,11 +47,13 @@ export default function App() {
   const { show, dismiss } = useSplashGate();
 
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        {show && <Splash onDone={dismiss} />}
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          {show && <Splash onDone={dismiss} />}
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }

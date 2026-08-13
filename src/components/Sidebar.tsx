@@ -14,6 +14,7 @@ import {
   Settings,
   X,
 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 const linkBase =
   "flex items-center gap-3 px-3 py-2 text-sm rounded-none border-l-2 border-transparent text-ink-dim hover:text-ink hover:bg-white/[0.03] transition-colors";
@@ -45,6 +46,8 @@ function GroupLabel({ children }: { children: string }) {
 }
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
+  const { t } = useTranslation();
+
   return (
     <nav className="flex flex-col h-full bg-base-1 border-r border-line w-64 shrink-0">
       <div className="flex items-center justify-between px-4 h-14 border-b border-line">
@@ -60,31 +63,31 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
 
       <div className="flex-1 overflow-y-auto pb-6">
         <div className="mt-3">
-          <Item to="/dashboard" icon={LayoutDashboard}>Dashboard</Item>
+          <Item to="/dashboard" icon={LayoutDashboard}>{t("nav.dashboard")}</Item>
         </div>
 
-        <GroupLabel>Scanner</GroupLabel>
-        <Item to="/scanner" icon={ScanLine}>Standard Scanner</Item>
-        <Item to="/ai-scanner" icon={Sparkles} badge="SOON">AI Scanner</Item>
+        <GroupLabel>{t("nav.scanner")}</GroupLabel>
+        <Item to="/scanner" icon={ScanLine}>{t("nav.standardScanner")}</Item>
+        <Item to="/ai-scanner" icon={Sparkles} badge={t("nav.comingSoon")}>{t("nav.aiScanner")}</Item>
 
-        <GroupLabel>Analysis</GroupLabel>
-        <Item to="/analysis/security" icon={ShieldCheck}>Security</Item>
-        <Item to="/analysis/web" icon={FileCode2}>Web Quality</Item>
-        <Item to="/analysis/performance" icon={Gauge}>Performance</Item>
-        <Item to="/analysis/accessibility" icon={Accessibility}>Accessibility</Item>
-        <Item to="/analysis/seo" icon={Search}>SEO</Item>
-        <Item to="/analysis/source" icon={FolderCode}>Source Code</Item>
+        <GroupLabel>{t("nav.analysis")}</GroupLabel>
+        <Item to="/analysis/security" icon={ShieldCheck}>{t("nav.security")}</Item>
+        <Item to="/analysis/web" icon={FileCode2}>{t("nav.web")}</Item>
+        <Item to="/analysis/performance" icon={Gauge}>{t("nav.performance")}</Item>
+        <Item to="/analysis/accessibility" icon={Accessibility}>{t("nav.accessibility")}</Item>
+        <Item to="/analysis/seo" icon={Search}>{t("nav.seo")}</Item>
+        <Item to="/analysis/source" icon={FolderCode}>{t("nav.source")}</Item>
 
-        <GroupLabel>Records</GroupLabel>
-        <Item to="/reports" icon={FileBarChart}>Reports</Item>
-        <Item to="/history" icon={History}>Scan History</Item>
+        <GroupLabel>{t("nav.records")}</GroupLabel>
+        <Item to="/reports" icon={FileBarChart}>{t("nav.reports")}</Item>
+        <Item to="/history" icon={History}>{t("nav.history")}</Item>
 
-        <GroupLabel>Account</GroupLabel>
-        <Item to="/settings" icon={Settings}>Settings</Item>
+        <GroupLabel>{t("nav.account")}</GroupLabel>
+        <Item to="/settings" icon={Settings}>{t("nav.settings")}</Item>
       </div>
 
       <div className="px-4 py-3 border-t border-line font-mono text-[0.65rem] text-ink-faint">
-        ScanForge v1.0.0 · Core Scanner
+        {t("nav.version")}
       </div>
     </nav>
   );

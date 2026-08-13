@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ScanForgeCore } from "@/three/ScanForgeCore";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/lib/i18n";
 import { ShieldCheck, FileCode2, Gauge, Accessibility, Search, FolderCode } from "lucide-react";
 
 const STEPS = [
@@ -37,6 +38,7 @@ const CAPABILITIES = [
 
 export function Landing() {
   const { session } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <div className="bg-base-0 text-ink">
@@ -49,7 +51,7 @@ export function Landing() {
             to={session ? "/dashboard" : "/auth"}
             className="font-mono text-xs border border-line-strong px-3 py-1.5 hover:border-accent transition-colors"
           >
-            {session ? "Dashboard" : "Sign In"}
+            {session ? t("landing.dashboard") : t("landing.signIn")}
           </Link>
         </div>
       </header>
@@ -57,26 +59,23 @@ export function Landing() {
       {/* HERO */}
       <section className="max-w-6xl mx-auto px-6 py-16 sm:py-24 grid md:grid-cols-2 gap-10 items-center">
         <div>
-          <p className="font-mono text-xs text-accent tracking-wide">v1.0.0 — Core Scanner</p>
+          <p className="font-mono text-xs text-accent tracking-wide">{t("landing.tag")}</p>
           <h1 className="text-4xl sm:text-5xl font-semibold mt-3 leading-tight">
-            Scan. Understand.<br />Improve.
+            {t("landing.title1")}<br />{t("landing.title2")}
           </h1>
-          <p className="text-ink-dim mt-5 max-w-md">
-            Analyze websites, discover configuration issues, understand the
-            risks, and get practical remediation guidance.
-          </p>
+          <p className="text-ink-dim mt-5 max-w-md">{t("landing.subtitle")}</p>
           <div className="flex flex-wrap gap-3 mt-8">
             <Link
               to={session ? "/dashboard" : "/auth"}
               className="font-mono text-sm px-5 py-3 bg-accent text-base-0 font-medium hover:bg-accent/90 transition-colors"
             >
-              Get Started
+              {t("landing.getStarted")}
             </Link>
             <a
               href="#how-it-works"
               className="font-mono text-sm px-5 py-3 border border-line-strong hover:border-accent transition-colors"
             >
-              How It Works
+              {t("landing.howItWorks")}
             </a>
           </div>
         </div>
@@ -89,7 +88,7 @@ export function Landing() {
       <section id="how-it-works" className="border-t border-line">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <h2 className="font-mono text-xs uppercase tracking-[0.12em] text-ink-faint mb-8">
-            How ScanForge Works
+            {t("landing.howHeading")}
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-line border border-line">
             {STEPS.map((s) => (
@@ -107,7 +106,7 @@ export function Landing() {
       <section className="border-t border-line">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <h2 className="font-mono text-xs uppercase tracking-[0.12em] text-ink-faint mb-8">
-            What ScanForge Checks
+            {t("landing.checksHeading")}
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line">
             {CAPABILITIES.map((c) => (
@@ -130,16 +129,13 @@ export function Landing() {
         <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10">
           <div>
             <h2 className="font-mono text-xs uppercase tracking-[0.12em] text-ink-faint mb-4">
-              Security Approach
+              {t("landing.securityHeading")}
             </h2>
             <p className="text-2xl font-semibold">
-              Security Hardening: <span className="text-accent">Strong</span>
+              {t("landing.securityTitle")} <span className="text-accent">{t("landing.securityStrong")}</span>
             </p>
             <p className="text-sm text-ink-dim mt-4 leading-relaxed max-w-md">
-              We won't claim a percentage — security isn't a score. ScanForge
-              itself is built with SSRF protection, strict input validation,
-              rate limiting, and least-privilege access to your data via
-              Supabase Row Level Security.
+              {t("landing.securityBody")}
             </p>
           </div>
           <ul className="space-y-3 font-mono text-sm text-ink-dim">
@@ -156,7 +152,7 @@ export function Landing() {
       <section className="border-t border-line">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <h2 className="font-mono text-xs uppercase tracking-[0.12em] text-ink-faint mb-8">
-            Version Roadmap
+            {t("landing.roadmapHeading")}
           </h2>
           <div className="grid sm:grid-cols-2 gap-px bg-line border border-line">
             <div className="bg-base-0 p-6">
@@ -182,12 +178,12 @@ export function Landing() {
       {/* GET STARTED */}
       <section className="border-t border-line">
         <div className="max-w-6xl mx-auto px-6 py-20 text-center">
-          <h2 className="text-2xl sm:text-3xl font-semibold">Start your first scan.</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold">{t("landing.ctaHeading")}</h2>
           <Link
             to={session ? "/dashboard" : "/auth"}
             className="inline-block mt-6 font-mono text-sm px-6 py-3 bg-accent text-base-0 font-medium hover:bg-accent/90 transition-colors"
           >
-            Get Started
+            {t("landing.getStarted")}
           </Link>
         </div>
       </section>
@@ -195,7 +191,7 @@ export function Landing() {
       <footer className="border-t border-line">
         <div className="max-w-6xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-ink-faint">
           <span>ScanForge v1.0.0 — Core Scanner</span>
-          <span>Scan. Understand. Improve.</span>
+          <span>{t("landing.footerTag")}</span>
         </div>
       </footer>
     </div>

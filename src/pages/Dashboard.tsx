@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/lib/i18n";
 
 interface ScanRow {
   id: string;
@@ -13,6 +14,7 @@ interface ScanRow {
 
 export function Dashboard() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [scans, setScans] = useState<ScanRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, critical: 0, high: 0, avgScore: 0 });
@@ -49,23 +51,23 @@ export function Dashboard() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-xl font-semibold">Good to see you again.</h1>
-          <p className="text-sm text-ink-dim mt-1">Here's where things stand.</p>
+          <h1 className="text-xl font-semibold">{t("dashboard.welcome")}</h1>
+          <p className="text-sm text-ink-dim mt-1">{t("dashboard.subtitle")}</p>
         </div>
         <Link
           to="/scanner"
           className="font-mono text-sm px-4 py-2.5 bg-accent text-base-0 font-medium hover:bg-accent/90 transition-colors"
         >
-          Start New Scan
+          {t("dashboard.startScan")}
         </Link>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-line border border-line mb-8">
         {[
-          { label: "Total Scans", value: stats.total },
-          { label: "Critical Findings", value: stats.critical },
-          { label: "High Findings", value: stats.high },
-          { label: "Avg. Security Score", value: stats.avgScore },
+          { label: t("dashboard.totalScans"), value: stats.total },
+          { label: t("dashboard.criticalFindings"), value: stats.critical },
+          { label: t("dashboard.highFindings"), value: stats.high },
+          { label: t("dashboard.avgScore"), value: stats.avgScore },
         ].map((s) => (
           <div key={s.label} className="bg-panel p-4">
             <div className="font-mono text-2xl">{loading ? "–" : s.value}</div>
@@ -77,14 +79,14 @@ export function Dashboard() {
       </div>
 
       <h2 className="font-mono text-xs uppercase tracking-[0.12em] text-ink-faint mb-3">
-        Recent Scans
+        {t("dashboard.recentScans")}
       </h2>
 
       {loading ? (
         <p className="text-sm text-ink-dim font-mono">Loading...</p>
       ) : scans.length === 0 ? (
         <div className="border border-line p-8 text-center">
-          <p className="text-sm text-ink-dim">No scans yet. Run your first one to see results here.</p>
+          <p className="text-sm text-ink-dim">{t("dashboard.noScans")}</p>
         </div>
       ) : (
         <div className="border border-line overflow-x-auto">

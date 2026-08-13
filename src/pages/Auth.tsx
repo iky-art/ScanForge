@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Github } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/lib/i18n";
 
 type Mode = "signin" | "signup" | "reset";
 
 export function Auth() {
   const { session, signInWithGithub, signInWithPassword, signUpWithPassword, requestPasswordReset } =
     useAuth();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,12 +58,12 @@ export function Auth() {
 
         <div className="border border-line p-6">
           <h1 className="font-semibold text-lg mb-1">
-            {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Reset password"}
+            {mode === "signin" ? t("auth.signIn") : mode === "signup" ? t("auth.createAccount") : t("auth.resetPassword")}
           </h1>
           <p className="text-sm text-ink-dim mb-5">
-            {mode === "signin" && "Welcome back."}
-            {mode === "signup" && "Start scanning in a couple of minutes."}
-            {mode === "reset" && "We'll send you a reset link."}
+            {mode === "signin" && t("auth.welcomeBack")}
+            {mode === "signup" && t("auth.startScanning")}
+            {mode === "reset" && t("auth.sendResetLink")}
           </p>
 
           {mode !== "reset" && (
@@ -70,7 +72,7 @@ export function Auth() {
                 onClick={() => signInWithGithub()}
                 className="w-full flex items-center justify-center gap-2 border border-line-strong py-2.5 text-sm font-medium hover:border-accent transition-colors mb-4"
               >
-                <Github size={16} /> Sign in with GitHub
+                <Github size={16} /> {t("auth.githubSignIn")}
               </button>
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-px bg-line flex-1" />
@@ -82,7 +84,7 @@ export function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="font-mono text-[0.65rem] uppercase tracking-wide text-ink-faint">Email</label>
+              <label className="font-mono text-[0.65rem] uppercase tracking-wide text-ink-faint">{t("auth.email")}</label>
               <input
                 type="email"
                 required
@@ -95,7 +97,7 @@ export function Auth() {
 
             {mode !== "reset" && (
               <div>
-                <label className="font-mono text-[0.65rem] uppercase tracking-wide text-ink-faint">Password</label>
+                <label className="font-mono text-[0.65rem] uppercase tracking-wide text-ink-faint">{t("auth.password")}</label>
                 <input
                   type="password"
                   required
@@ -110,7 +112,7 @@ export function Auth() {
             {mode === "signup" && (
               <div>
                 <label className="font-mono text-[0.65rem] uppercase tracking-wide text-ink-faint">
-                  Confirm password
+                  {t("auth.confirmPassword")}
                 </label>
                 <input
                   type="password"
@@ -131,21 +133,21 @@ export function Auth() {
               disabled={busy}
               className="w-full bg-accent text-base-0 font-mono text-sm font-medium py-2.5 hover:bg-accent/90 transition-colors disabled:opacity-50"
             >
-              {mode === "signin" && "Sign in"}
-              {mode === "signup" && "Create account"}
-              {mode === "reset" && "Send reset link"}
+              {mode === "signin" && t("auth.signIn")}
+              {mode === "signup" && t("auth.createAccount")}
+              {mode === "reset" && t("auth.sendResetLinkBtn")}
             </button>
           </form>
 
           <div className="mt-5 flex items-center justify-between font-mono text-xs text-ink-dim">
             {mode === "signin" && (
               <>
-                <button onClick={() => setMode("signup")} className="hover:text-ink">Create account</button>
-                <button onClick={() => setMode("reset")} className="hover:text-ink">Forgot password</button>
+                <button onClick={() => setMode("signup")} className="hover:text-ink">{t("auth.createAccount")}</button>
+                <button onClick={() => setMode("reset")} className="hover:text-ink">{t("auth.forgotPassword")}</button>
               </>
             )}
             {mode !== "signin" && (
-              <button onClick={() => setMode("signin")} className="hover:text-ink">Back to sign in</button>
+              <button onClick={() => setMode("signin")} className="hover:text-ink">{t("auth.backToSignIn")}</button>
             )}
           </div>
         </div>

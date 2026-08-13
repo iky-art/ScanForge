@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useScanRun } from "@/hooks/useScanRun";
+import { useTranslation } from "@/lib/i18n";
 import { CheckStatusRow } from "@/components/Badges";
 import { RiskCards } from "@/components/RiskCards";
 import { FindingsList } from "@/components/FindingsList";
@@ -18,6 +19,7 @@ function coreStateFor(status: string): CoreState {
 }
 
 export function Scanner() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>("website");
   const [url, setUrl] = useState("");
   const [selected, setSelected] = useState<Finding | null>(null);
@@ -51,8 +53,8 @@ export function Scanner() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-1">Standard Scanner</h1>
-      <p className="text-sm text-ink-dim mb-6">Analyze a website or uploaded project.</p>
+      <h1 className="text-xl font-semibold mb-1">{t("scanner.title")}</h1>
+      <p className="text-sm text-ink-dim mb-6">{t("scanner.subtitle")}</p>
 
       <div className="flex gap-1 mb-6 font-mono text-xs">
         {(["website", "source"] as Mode[]).map((m) => (
@@ -63,7 +65,7 @@ export function Scanner() {
               mode === m ? "border-accent text-accent" : "border-line text-ink-dim"
             }`}
           >
-            {m === "website" ? "Website" : "Source Code"}
+            {m === "website" ? t("scanner.website") : t("scanner.source")}
           </button>
         ))}
       </div>
@@ -90,13 +92,13 @@ export function Scanner() {
                 disabled={stream.status === "connecting" || stream.status === "running"}
                 className="font-mono text-sm px-5 bg-accent text-base-0 font-medium hover:bg-accent/90 disabled:opacity-50 transition-colors"
               >
-                Start Scan
+                {t("scanner.startScan")}
               </button>
             </form>
           ) : (
             <label className="flex flex-col items-center justify-center border border-dashed border-line-strong py-8 cursor-pointer hover:border-accent transition-colors">
               <span className="font-mono text-sm text-ink-dim">
-                {sourceBusy ? "Scanning archive..." : "Click to upload a .zip archive"}
+                {sourceBusy ? t("scanner.scanning") : t("scanner.uploadZip")}
               </span>
               <input
                 type="file"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/lib/i18n";
 
 const SESSION_KEY = "scanforge_splash_shown";
 const DURATION_MS = 4500;
@@ -18,6 +19,7 @@ export function useSplashGate() {
 }
 
 export function Splash({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation();
   const reduceMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -88,7 +90,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
           SCAN<span className="text-accent">FORGE</span>
         </div>
         <div className="text-[0.65rem] text-ink-faint mt-2 tracking-[0.15em]">
-          {ready ? "SYSTEM READY" : "CORE INITIALIZING..."}
+          {ready ? t("splash.ready") : t("splash.initializing")}
         </div>
       </div>
 
@@ -104,7 +106,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
           />
         </div>
         <div className="flex justify-between mt-2 font-mono text-[0.6rem] text-ink-faint tracking-wide">
-          <span>LOADING</span>
+          <span>{t("splash.loading")}</span>
           <span>{percent}%</span>
         </div>
       </div>
