@@ -3,6 +3,7 @@ import { useScanRun } from "@/hooks/useScanRun";
 import { useTranslation } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { persistScan } from "@/lib/persistScan";
+import { checkScanRateLimit } from "@/lib/rateLimit";
 import { CheckStatusRow } from "@/components/Badges";
 import { RiskCards } from "@/components/RiskCards";
 import { FindingsList } from "@/components/FindingsList";
@@ -34,6 +35,7 @@ export function Scanner() {
   const [sourceResult, setSourceResult] = useState<any | null>(null);
   const [sourceBusy, setSourceBusy] = useState(false);
   const [sourceError, setSourceError] = useState<string | null>(null);
+  const [rateLimitError, setRateLimitError] = useState<string | null>(null);
 
   // Save the completed website scan (and its findings) to Supabase once,
   // right when it finishes — this is what makes Dashboard/History/Reports
@@ -59,7 +61,27 @@ export function Scanner() {
     }
   }, [stream.status, stream.score, stream.findings, user, url]);
 
+  async function startWebsiteScan(target: string) {
+    setRateLimitError(null);
+    if (user) {
+      const check = await checkScanRateLimit(user.id);
+      if (!check.allowed) {
+        setRateLimitError(check.message ?? "Rate limit reached.");
+        return;
+      }
+    }
+    stream.start(target);
+  }
+
   async function handleSourceUpload(file: File) {
+    setRateLimitError(null);
+    if (user) {
+      const check = await checkScanRateLimit(user.id);
+      if (!check.allowed) {
+        setRateLimitError(check.message ?? "Rate limit reached.");
+        return;
+      }
+    }
     setSourceBusy(true);
     setSourceError(null);
     setSourceResult(null);
@@ -112,7 +134,7 @@ export function Scanner() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (url.trim()) stream.start(url.trim());
+                if (url.trim()) startWebsiteScan(url.trim());
               }}
               className="flex gap-2"
             >
@@ -148,6 +170,7 @@ export function Scanner() {
             </label>
           )}
           {sourceError && <p className="text-sm text-sev-critical mt-2">{sourceError}</p>}
+          {rateLimitError && <p className="text-sm text-sev-high mt-2">{rateLimitError}</p>}
         </div>
 
         <div className="h-24 md:h-32 hidden sm:block">
