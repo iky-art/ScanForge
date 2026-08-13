@@ -1,2 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /scanner
+Disallow: /ai-scanner
+Disallow: /analysis/
+Disallow: /history
+Disallow: /reports
+Disallow: /settings
+
+Sitemap: https://scan-forge-c4m9.vercel.app/sitemap.xml
