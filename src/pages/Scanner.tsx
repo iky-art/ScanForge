@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useScanRun } from "@/hooks/useScanRun";
 import { useTranslation } from "@/lib/i18n";
+import { useAuth } from "@/hooks/useAuth";
+import { persistScan } from "@/lib/persistScan";
 import { CheckStatusRow } from "@/components/Badges";
 import { RiskCards } from "@/components/RiskCards";
 import { FindingsList } from "@/components/FindingsList";
@@ -20,16 +22,42 @@ function coreStateFor(status: string): CoreState {
 
 export function Scanner() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("website");
   const [url, setUrl] = useState("");
   const [selected, setSelected] = useState<Finding | null>(null);
   const [filter, setFilter] = useState<Severity | "anomalous" | null>(null);
 
   const stream = useScanRun();
+  const websitePersistedRef = useRef(false);
 
   const [sourceResult, setSourceResult] = useState<any | null>(null);
   const [sourceBusy, setSourceBusy] = useState(false);
   const [sourceError, setSourceError] = useState<string | null>(null);
+
+  // Save the completed website scan (and its findings) to Supabase once,
+  // right when it finishes — this is what makes Dashboard/History/Reports
+  // show real data instead of staying permanently empty.
+  useEffect(() => {
+    if (stream.status === "connecting") {
+      websitePersistedRef.current = false;
+      return;
+    }
+    if (
+      stream.status === "completed" &&
+      stream.score &&
+      user &&
+      !websitePersistedRef.current
+    ) {
+      websitePersistedRef.current = true;
+      persistScan(user.id, {
+        target: url,
+        mode: "website",
+        score: stream.score.overall,
+        findings: stream.findings,
+      });
+    }
+  }, [stream.status, stream.score, stream.findings, user, url]);
 
   async function handleSourceUpload(file: File) {
     setSourceBusy(true);
@@ -38,6 +66,14 @@ export function Scanner() {
     try {
       const result = await scanSourceUpload(file);
       setSourceResult(result);
+      if (user) {
+        persistScan(user.id, {
+          target: file.name,
+          mode: "source",
+          score: result.score?.overall ?? null,
+          findings: result.findings ?? [],
+        });
+      }
     } catch (err) {
       setSourceError(err instanceof Error ? err.message : "Scan failed.");
     } finally {
