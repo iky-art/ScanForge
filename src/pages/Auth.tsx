@@ -86,6 +86,7 @@ export function Auth() {
               <input
                 type="email"
                 required
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full mt-1 bg-panel border border-line px-3 py-2 text-sm focus:border-accent outline-none"
@@ -98,6 +99,7 @@ export function Auth() {
                 <input
                   type="password"
                   required
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full mt-1 bg-panel border border-line px-3 py-2 text-sm focus:border-accent outline-none"
@@ -113,6 +115,7 @@ export function Auth() {
                 <input
                   type="password"
                   required
+                  placeholder="••••••••"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   className="w-full mt-1 bg-panel border border-line px-3 py-2 text-sm focus:border-accent outline-none"
