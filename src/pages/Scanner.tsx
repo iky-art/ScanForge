@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useScanStream } from "@/hooks/useScanStream";
+import { useScanRun } from "@/hooks/useScanRun";
 import { CheckStatusRow } from "@/components/Badges";
 import { RiskCards } from "@/components/RiskCards";
 import { FindingsList } from "@/components/FindingsList";
@@ -23,7 +23,7 @@ export function Scanner() {
   const [selected, setSelected] = useState<Finding | null>(null);
   const [filter, setFilter] = useState<Severity | "anomalous" | null>(null);
 
-  const stream = useScanStream();
+  const stream = useScanRun();
 
   const [sourceResult, setSourceResult] = useState<any | null>(null);
   const [sourceBusy, setSourceBusy] = useState(false);

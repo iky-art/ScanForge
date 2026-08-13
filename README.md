@@ -8,7 +8,10 @@ actual check the scanner performed.
 
 - Frontend: Vite, React 19, TypeScript, Tailwind CSS v4, React Router,
   React Three Fiber (3D "ScanForge Core"), Framer Motion, Lucide.
-- Backend: Node.js, Express, Server-Sent Events for live scan progress.
+- Backend: Vercel Serverless Functions (`api/`) — no separate server to
+  host. Scan progress streams to the UI as a sequence of short, independent
+  calls (one per check category) instead of a long-lived connection, which
+  is what makes this work cleanly within serverless execution limits.
 - Auth & data: Supabase (Auth + Postgres + Row Level Security).
 
 ## 1. Install dependencies
@@ -28,7 +31,7 @@ npm install
    users can still sign up with email + password.
 4. In **Authentication → URL Configuration**, add
    `http://localhost:5173/dashboard` as an allowed redirect URL (and your
-   production URL once deployed).
+   production Vercel URL once deployed).
 5. Copy your project's **Project URL** and **anon/public key** from
    **Settings → API** — never the `service_role` key.
 
@@ -38,69 +41,52 @@ npm install
 cp .env.example .env
 ```
 
-Fill in:
+Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The `SCAN_*`
+values already have sensible defaults in code — only override them if you
+need to.
 
-```
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
-VITE_API_BASE_URL=http://localhost:8787
-PORT=8787
-CORS_ORIGIN=http://localhost:5173
-```
+## 4. Run it locally
 
-## 4. Run it
-
-Frontend and backend are separate processes (the scanner backend needs
-outbound network access to actually reach scan targets, which is why it's
-not just client-side fetch — most target sites block cross-origin browser
-requests via CORS).
+This project uses Vercel's own dev server, which runs the Vite frontend
+*and* the `api/` functions together on one port (so `/api/...` calls just
+work, no proxy config needed):
 
 ```bash
-npm run dev:all
+npm install -g vercel   # one-time, if you don't have it
+npm run dev
 ```
 
-This runs the Vite dev server (`:5173`) and the scanner API (`:8787`)
-together. Or run them separately:
+Open the URL it prints (usually `http://localhost:3000`).
 
-```bash
-npm run dev      # frontend only
-npm run server   # backend only
-```
+## 5. Deploy to Vercel
 
-Open `http://localhost:5173`.
+1. Push this repo to GitHub.
+2. On [vercel.com](https://vercel.com) → **Add New → Project** → import the
+   repo. Vercel auto-detects Vite; no build settings need to change.
+3. In **Project Settings → Environment Variables**, add
+   `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (same values as your
+   `.env`).
+4. Deploy. Frontend and `api/` functions ship together — one URL, no CORS
+   config, no separate backend host to manage.
 
-## Deploy the backend to Render (free tier)
+No credit card is required for Vercel's Hobby plan, and it's free for
+personal/non-commercial use.
 
-1. Push this project to a GitHub repo (Render deploys from Git).
-2. On [render.com](https://render.com), **New → Web Service**, connect the
-   repo. Render will detect `render.yaml` automatically — or set manually:
-   - Build command: `npm install`
-   - Start command: `npm run server`
-   - Plan: Free
-3. In the service's **Environment** tab, set:
-   - `CORS_ORIGIN` → your deployed frontend URL (e.g.
-     `https://scanforge.vercel.app`) — required, the API rejects
-     cross-origin requests from anywhere else.
-   - Leave `PORT` as Render sets it automatically.
-4. Once deployed, copy the service URL (e.g.
-   `https://scanforge-api.onrender.com`) and set it as
-   `VITE_API_BASE_URL` in your frontend's environment (Vercel project
-   settings → Environment Variables), then redeploy the frontend.
+## How the scanner works
 
-Free tier note: the service sleeps after 15 minutes of no traffic and takes
-30–60 seconds to wake up on the next request — expected for occasional use,
-not for production traffic under load.
-
-
-
-- **Website mode**: the backend fetches the target with a hardened
-  `safeFetch` (blocks localhost/private/link-local addresses, re-validates
-  every redirect hop, caps response size and timeout) and runs real checks
-  against the actual headers/HTML it gets back. Progress streams to the
-  browser over Server-Sent Events as each check finishes.
-- **Source mode**: uploaded `.zip` files are extracted with path-traversal
-  protection into a temp directory, scanned for secret/credential/insecure
-  patterns via static regex — nothing is ever executed — then deleted.
+- **Website mode**: `POST /api/scan-connect` fetches the target with a
+  hardened `safeFetch` (blocks localhost/private/link-local addresses,
+  re-validates every redirect hop, caps response size and timeout) and
+  returns the raw headers/HTML back to the browser. The browser then calls
+  `POST /api/scan-check` once per category (security, web, seo,
+  accessibility, performance), passing that same data back — each call is
+  a small, independent, stateless function, which is what lets this run on
+  serverless without needing a database just to track scan-in-progress
+  state.
+- **Source mode**: `POST /api/scan-source` accepts a `.zip` upload,
+  extracts it with path-traversal protection into a temp directory, scans
+  it for secret/credential/insecure patterns via static regex — nothing is
+  ever executed — then deletes the temp files.
 - **AI Scanner** is intentionally a "Coming Soon" placeholder in v1. No API
   key is requested and no AI call is made anywhere in this codebase yet.
 
@@ -108,7 +94,9 @@ not for production traffic under load.
 
 ```
 src/            React app (pages, components, 3D core, scanner types)
-server/         Express API (scan orchestration, safe fetch, safe zip, rules)
+api/            Vercel Functions — the only backend entry points
+server/         Shared scanning logic (safe fetch, safe zip, rule checks),
+                imported by api/*.ts — not deployed as routes itself
 supabase/       schema.sql — run once in your Supabase project
 ```
 
@@ -122,6 +110,12 @@ supabase/       schema.sql — run once in your Supabase project
   yet written up.
 - Report PDF export isn't implemented yet (JSON export is). Add it with a
   library like `@react-pdf/renderer` if you need it.
-- Rate limiting is in-memory per server instance — fine for v1, swap for a
-  shared store (e.g. Redis) before running multiple instances behind a
-  load balancer.
+- Per-IP rate limiting isn't included in this serverless setup (in-memory
+  limiters don't work across function invocations). If you need it, add
+  Vercel's Edge Config or a shared store like Upstash Redis in front of
+  `api/scan-connect.ts` and `api/scan-source.ts`.
+- `api/scan-check.ts` re-fetches nothing itself for security/seo/
+  accessibility/performance checks — it reuses the HTML `scan-connect`
+  already retrieved. `web` checks additionally fetch `robots.txt` and
+  `sitemap.xml` directly (also via `safeFetch`), since those need separate
+  requests.

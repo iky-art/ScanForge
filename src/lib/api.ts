@@ -1,13 +1,10 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8787";
-
-export function scanWebsiteStreamUrl(target: string): string {
-  return `${API_BASE}/api/scan/website?target=${encodeURIComponent(target)}`;
-}
+// Same-origin: frontend and API functions deploy together on Vercel, so
+// these are plain relative paths — no separate API base URL needed.
 
 export async function scanSourceUpload(file: File) {
   const form = new FormData();
   form.append("archive", file);
-  const res = await fetch(`${API_BASE}/api/scan/source`, {
+  const res = await fetch("/api/scan-source", {
     method: "POST",
     body: form,
   });
