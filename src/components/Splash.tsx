@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const SESSION_KEY = "scanforge_splash_shown";
-const DURATION_MS = 2800;
+const DURATION_MS = 4500;
 
 export function useSplashGate() {
   const [show, setShow] = useState(false);
@@ -42,7 +42,13 @@ export function Splash({ onDone }: { onDone: () => void }) {
     let frame: number;
     const tick = () => {
       const elapsed = performance.now() - start;
-      const pct = Math.min(100, Math.round((elapsed / DURATION_MS) * 100));
+      const t = Math.min(1, elapsed / DURATION_MS);
+      // Eased curve instead of a straight line: quick at first, then it
+      // visibly slows and "grinds" through the last stretch before
+      // snapping to 100 — reads as something substantial finishing up,
+      // not a flat progress bar.
+      const eased = 1 - Math.pow(1 - t, 4);
+      const pct = Math.min(100, Math.round(eased * 100));
       setPercent(pct);
       if (elapsed < DURATION_MS) {
         frame = requestAnimationFrame(tick);
