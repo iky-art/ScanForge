@@ -4,5 +4,11 @@
     "api/scan-check.ts": { "maxDuration": 15 },
     "api/scan-source.ts": { "maxDuration": 30 },
     "api/health.ts": { "maxDuration": 5 }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
