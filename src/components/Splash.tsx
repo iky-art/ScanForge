@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { ScanForgeCore } from "@/three/ScanForgeCore";
 
 const SESSION_KEY = "scanforge_splash_shown";
+const DURATION_MS = 2800;
 
 export function useSplashGate() {
   const [show, setShow] = useState(false);
@@ -18,28 +18,88 @@ export function useSplashGate() {
 }
 
 export function Splash({ onDone }: { onDone: () => void }) {
-  const [phase, setPhase] = useState<"init" | "ready">("init");
+  const reduceMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const [logoIn, setLogoIn] = useState(reduceMotion);
+  const [nameIn, setNameIn] = useState(reduceMotion);
+  const [percent, setPercent] = useState(reduceMotion ? 100 : 0);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("ready"), 900);
-    const t2 = setTimeout(() => onDone(), 1700);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
+    if (reduceMotion) {
+      const t = setTimeout(onDone, 500);
+      return () => clearTimeout(t);
+    }
+
+    // Staggered reveal: logo first, then the wordmark shortly after.
+    const logoTimer = setTimeout(() => setLogoIn(true), 150);
+    const nameTimer = setTimeout(() => setNameIn(true), 650);
+
+    // Progress counter tied to real elapsed time, not a fake instant jump —
+    // it should feel like something is actually being initialized.
+    const start = performance.now();
+    let frame: number;
+    const tick = () => {
+      const elapsed = performance.now() - start;
+      const pct = Math.min(100, Math.round((elapsed / DURATION_MS) * 100));
+      setPercent(pct);
+      if (elapsed < DURATION_MS) {
+        frame = requestAnimationFrame(tick);
+      }
     };
-  }, [onDone]);
+    frame = requestAnimationFrame(tick);
+
+    const doneTimer = setTimeout(onDone, DURATION_MS + 500);
+
+    return () => {
+      clearTimeout(logoTimer);
+      clearTimeout(nameTimer);
+      clearTimeout(doneTimer);
+      cancelAnimationFrame(frame);
+    };
+  }, [onDone, reduceMotion]);
+
+  const ready = percent >= 100;
 
   return (
-    <div className="fixed inset-0 z-50 bg-base-0 flex flex-col items-center justify-center">
-      <div className="w-40 h-40 sm:w-56 sm:h-56">
-        <ScanForgeCore state={phase === "init" ? "scanning" : "complete"} className="w-full h-full" />
-      </div>
-      <div className="font-mono text-center mt-4">
-        <div className="text-lg tracking-[0.15em]">
+    <div className="fixed inset-0 z-50 bg-base-0 flex flex-col items-center justify-center px-4">
+      <img
+        src="/android-chrome-192x192.png"
+        alt=""
+        aria-hidden="true"
+        className={`w-20 h-20 sm:w-24 sm:h-24 transition-all duration-700 ease-out ${
+          logoIn ? "opacity-100 scale-100" : "opacity-0 scale-75"
+        }`}
+      />
+
+      <div
+        className={`font-mono text-center mt-5 transition-all duration-700 ease-out ${
+          nameIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+        }`}
+      >
+        <div className="text-xl sm:text-2xl tracking-[0.15em]">
           SCAN<span className="text-accent">FORGE</span>
         </div>
-        <div className="text-xs text-ink-faint mt-2 tracking-[0.1em]">
-          {phase === "init" ? "CORE INITIALIZING..." : "SYSTEM READY"}
+        <div className="text-[0.65rem] text-ink-faint mt-2 tracking-[0.15em]">
+          {ready ? "SYSTEM READY" : "CORE INITIALIZING..."}
+        </div>
+      </div>
+
+      <div
+        className={`w-40 sm:w-48 mt-6 transition-opacity duration-500 ${
+          nameIn ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="h-px bg-line relative overflow-hidden">
+          <div
+            className="h-full bg-accent transition-[width] duration-150 ease-linear"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+        <div className="flex justify-between mt-2 font-mono text-[0.6rem] text-ink-faint tracking-wide">
+          <span>LOADING</span>
+          <span>{percent}%</span>
         </div>
       </div>
     </div>
