@@ -9,7 +9,7 @@ import { Landing } from "@/pages/Landing";
 import { Auth } from "@/pages/Auth";
 import { Dashboard } from "@/pages/Dashboard";
 import { Scanner } from "@/pages/Scanner";
-import { AIScannerComingSoon } from "@/pages/AIScannerComingSoon";
+import { AIScanner } from "@/pages/AIScanner";
 import { AnalysisCategory } from "@/pages/AnalysisCategory";
 import { ScanHistory } from "@/pages/ScanHistory";
 import { Reports } from "@/pages/Reports";
@@ -31,7 +31,7 @@ function AppRoutes() {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scanner" element={<Scanner />} />
-        <Route path="/ai-scanner" element={<AIScannerComingSoon />} />
+        <Route path="/ai-scanner" element={<AIScanner />} />
         <Route path="/analysis/:category" element={<AnalysisCategory />} />
         <Route path="/history" element={<ScanHistory />} />
         <Route path="/reports" element={<Reports />} />

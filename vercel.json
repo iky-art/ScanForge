@@ -3,6 +3,7 @@
     "api/scan-connect.ts": { "maxDuration": 15 },
     "api/scan-check.ts": { "maxDuration": 15 },
     "api/scan-source.ts": { "maxDuration": 30 },
+    "api/ai-explain.ts": { "maxDuration": 20 },
     "api/health.ts": { "maxDuration": 5 }
   },
   "rewrites": [

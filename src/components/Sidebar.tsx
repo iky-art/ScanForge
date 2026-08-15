@@ -68,7 +68,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <GroupLabel>{t("nav.scanner")}</GroupLabel>
         <Item to="/scanner" icon={ScanLine}>{t("nav.standardScanner")}</Item>
-        <Item to="/ai-scanner" icon={Sparkles} badge={t("nav.comingSoon")}>{t("nav.aiScanner")}</Item>
+        <Item to="/ai-scanner" icon={Sparkles}>{t("nav.aiScanner")}</Item>
 
         <GroupLabel>{t("nav.analysis")}</GroupLabel>
         <Item to="/analysis/security" icon={ShieldCheck}>{t("nav.security")}</Item>

@@ -167,8 +167,8 @@ export function Landing() {
               <div className="font-mono text-sev-anomalous text-sm">v2.0.0</div>
               <h3 className="font-semibold mt-2">ScanForge Intelligence</h3>
               <p className="text-sm text-ink-dim mt-2">
-                AI-assisted analysis and contextual explanations — in
-                development, not part of v1.
+                AI-assisted briefings that explain and prioritize findings
+                your scan already detected — never invents new ones.
               </p>
             </div>
           </div>

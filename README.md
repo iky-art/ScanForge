@@ -87,8 +87,15 @@ personal/non-commercial use.
   extracts it with path-traversal protection into a temp directory, scans
   it for secret/credential/insecure patterns via static regex — nothing is
   ever executed — then deletes the temp files.
-- **AI Scanner** is intentionally a "Coming Soon" placeholder in v1. No API
-  key is requested and no AI call is made anywhere in this codebase yet.
+- **AI Scanner** (v2.0.0) calls a Val Town proxy that forwards to Google's
+  Gemini API — the Gemini key lives only on Val Town, never in this repo
+  or in Vercel's environment. `api/ai-explain.ts` sends the AI **only**
+  the findings a scan already detected (never raw source, never a live
+  fetch) and asks it to explain and prioritize them; the prompt
+  explicitly instructs the model not to invent, remove, or alter
+  findings. Set `VAL_TOWN_AI_URL` in your environment to enable it — if
+  unset, the AI Scanner page shows a clear "not configured" message
+  instead of failing silently.
 
 ## Project structure
 
